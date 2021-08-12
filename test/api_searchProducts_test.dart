@@ -198,6 +198,7 @@ void main() {
           queryType: QueryType.TEST);
 
       var parameters = <Parameter>[
+        const OutputFormat(format: Format.JSON),
         const Page(page: 1),
         const SearchTerms(terms: ['Quoted Coca "Cola"']),
       ];

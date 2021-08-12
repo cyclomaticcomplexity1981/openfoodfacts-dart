@@ -1303,6 +1303,7 @@ void main() {
       expect(product.ingredientsText, equals('Mehl, wasser'));
     });
 
+
     test('product with quotes', () async {
       String barcode = '2222222222223';
       Product product = Product(
