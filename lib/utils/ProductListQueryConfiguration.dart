@@ -2,20 +2,21 @@ import 'package:openfoodfacts/utils/AbstractQueryConfiguration.dart';
 import 'package:openfoodfacts/utils/LanguageHelper.dart';
 import 'package:openfoodfacts/utils/ProductFields.dart';
 
-/// Query Configuration for single barcode
-class ProductQueryConfiguration extends AbstractQueryConfiguration {
-  final String barcode;
+/// Query Configuration for multiple barcodes
+class ProductListQueryConfiguration extends AbstractQueryConfiguration {
+  final List<String> barcodes;
 
   /// See [AbstractQueryConfiguration.languages] for
   /// parameter's description.
-  ProductQueryConfiguration(
-    this.barcode, {
+  ProductListQueryConfiguration(
+    this.barcodes, {
     final OpenFoodFactsLanguage? language,
     final List<OpenFoodFactsLanguage> languages = const [],
     final String? lc,
     final String? cc,
     final List<ProductField>? fields,
-  }) : super(
+  })  : assert(barcodes.isNotEmpty),
+        super(
           language: language,
           languages: languages,
           lc: lc,

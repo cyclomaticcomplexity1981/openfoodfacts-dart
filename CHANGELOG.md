@@ -1,3 +1,25 @@
+## [1.3.1] - 22.07.2021
+- Fixed toJson and fromJson for the fields in multiple languages
+## [1.3.0] - 21.07.2021
+- Added explicit parameter WithoutAdditives to replace ContainsAdditives (deprecated)
+- Added new InvalidBarcodes class
+- Simplified product search tests
+- Added several nutrients
+- Added ability to request and set multiple translated product fields at once (breaking change)
+- Added support for product list queries
+- Added PnnsGroup2 filter to ProductSearchQueryConfiguration, deprecated PnnsGroupQueryConfiguration
+- Deprecated useless parameters OutputFormat and SearchSimple
+- Added new feature to get the Ecoscore description in HTML
+- Added comments to several classes and methods
+
+## [1.2.0] - 08.07.2021
+- `product_name_de`, `productNameEN`, ... are now deprecated. Use `productNameTranslated` instead
+- Added the `agribalyse` field in `EcoscoreData`
+- Added support for the `missing_data_warning` field, to inform users that the ecoscore may be improved
+- Added support for user management
+- Added [dart-doc documentation](https://openfoodfacts.github.io/openfoodfacts-dart/)
+- Added suggestion for states, languages, labels, categories and more.
+
 ## [1.1.0-beta] - 30.03.2021
 - Renamed SendImage imageUrl parameter to imageUri as it is an Uri (breaking change)
 - New product preferences and matching classes for personalized search (thanks to monsieurtanuki)

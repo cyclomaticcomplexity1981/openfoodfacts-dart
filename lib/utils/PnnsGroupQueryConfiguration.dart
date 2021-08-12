@@ -1,45 +1,46 @@
 import 'package:openfoodfacts/openfoodfacts.dart';
+import 'package:openfoodfacts/utils/AbstractQueryConfiguration.dart';
 import 'package:openfoodfacts/utils/PnnsGroups.dart';
 
-class PnnsGroupQueryConfiguration {
+// TODO: deprecated from 2021-07-13 (#92); remove when old enough
+@Deprecated('Use PnnsGroup2Filter with ProductSearchQueryConfiguration instead')
+class PnnsGroupQueryConfiguration extends AbstractQueryConfiguration {
   PnnsGroup2 group;
-  OpenFoodFactsLanguage? language;
-  List<ProductField>? fields;
   int page;
 
-  PnnsGroupQueryConfiguration(this.group,
-      {this.language, this.fields, this.page = 1});
+  PnnsGroupQueryConfiguration(
+    this.group, {
+    final OpenFoodFactsLanguage? language,
+    final String? lc,
+    final String? cc,
+    final List<ProductField>? fields,
+    this.page = 1,
+  }) : super(
+          language: language,
+          lc: lc,
+          cc: cc,
+          fields: fields,
+        );
 
+  /// Returns the [fields] as [String]s
   List<String> getFieldsKeys() {
     List<String> result = [];
 
-    for (ProductField field in fields!) {
-      result.add(field.key);
+    if (fields != null) {
+      for (ProductField field in fields!) {
+        result.add(field.key);
+      }
     }
 
     return result;
   }
 
+  @override
   Map<String, String> getParametersMap() {
-    Map<String, String> result = {};
+    final Map<String, String> result = super.getParametersMap();
 
-    if (language != null) {
-      result.putIfAbsent('lc', () => language.code);
-    }
-
-    if (fields != null) {
-      bool ignoreFieldsFilter = false;
-      for (ProductField field in fields!) {
-        if (field == ProductField.ALL) {
-          ignoreFieldsFilter = true;
-          break;
-        }
-      }
-
-      if (!ignoreFieldsFilter) {
-        result.putIfAbsent('fields', () => getFieldsKeys().join(','));
-      }
-    }
+    // explicit json output
+    result.putIfAbsent('json', () => '1');
 
     return result;
   }

@@ -5,8 +5,9 @@ import 'package:openfoodfacts/utils/QueryType.dart';
 import '../model/Product.dart';
 import '../model/ProductImage.dart';
 
+/// Helper class around [Product] fields
 class ProductHelper {
-  /// reduce the set of images of the product depending on the given language.
+  /// Reduces the set of images of the product depending on the given language.
   static void removeImages(Product product, OpenFoodFactsLanguage? language) {
     if (product.selectedImages == null) {
       return;
@@ -21,7 +22,7 @@ class ProductHelper {
     }
   }
 
-  // generate a image url for each product image entry
+  /// Generates a image url for each product image entry
   static void createImageUrls(Product product,
       {QueryType queryType = QueryType.PROD}) {
     if (product.images == null) {
@@ -34,17 +35,33 @@ class ProductHelper {
     }
   }
 
-  @deprecated
+  // TODO: deprecated from 2021-02-15 (#106); remove when old enough
+  @Deprecated(
+      'Useless now that we translate fields in a different way; just do not use')
   static void addTranslatedFields(Product product, Map<String, dynamic> source,
       OpenFoodFactsLanguage language) {
-    product.categoriesTagsTranslated =
+    product.categoriesTagsInLanguages ??= {};
+    product.categoriesTagsInLanguages![language] =
         source['categories_tags_${language.code}'];
-    product.labelsTagsTranslated = source['labels_tags_${language.code}'];
-    product.ingredientsTagsTranslated =
+
+    product.labelsTagsInLanguages ??= {};
+    product.labelsTagsInLanguages![language] =
+        source['labels_tags_${language.code}'];
+
+    product.ingredientsTagsInLanguages ??= {};
+    product.ingredientsTagsInLanguages![language] =
         source['ingredients_tags_${language.code}'];
-    product.ingredientsTextTranslated =
+
+    product.ingredientsTextInLanguages ??= {};
+    product.ingredientsTextInLanguages![language] =
         source['ingredients_text_${language.code}'];
-    product.productNameTranslated = source['product_name_${language.code}'];
-    product.countriesTagsTranslated = source['countries_tags_${language.code}'];
+
+    product.productNameInLanguages = {};
+    product.productNameInLanguages![language] =
+        source['product_name_${language.code}'];
+
+    product.countriesTagsInLanguages = {};
+    product.countriesTagsInLanguages![language] =
+        source['countries_tags_${language.code}'];
   }
 }

@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:openfoodfacts/model/Additives.dart';
 import 'package:openfoodfacts/model/Nutriments.dart';
 import 'package:openfoodfacts/openfoodfacts.dart';
 import 'package:openfoodfacts/model/Status.dart';
 import 'package:openfoodfacts/utils/LanguageHelper.dart';
 import 'package:openfoodfacts/utils/QueryType.dart';
+import 'package:openfoodfacts/utils/UnitHelper.dart';
 import 'package:test/test.dart';
 import 'test_constants.dart';
 
@@ -28,6 +31,8 @@ void main() {
 
       expect(result.product!.servingSize != null, true);
       expect(result.product!.servingSize, servingSize_1);
+
+      expect(result.product!.nutriments!.novaGroup, 4);
     }
 
     test('save product test, set serving-size', () async {
@@ -83,11 +88,19 @@ void main() {
 
     test('dont overwrite language', () async {
       String barcode = '4008391212596';
+      // Assign random product names, to make sure we won't fail to update the
+      // product and then read a previously written value
+      String frenchProductName = "Flocons d'epeautre au blé complet " +
+          Random().nextInt(100000).toString();
+      String germanProductName =
+          'Dinkelflakes' + Random().nextInt(100000).toString();
 
       // save french product name
       Product frenchProduct = Product(
         barcode: barcode,
-        productNameFR: "Flocons d'epeautre au blé complet",
+        productNameInLanguages: {
+          OpenFoodFactsLanguage.FRENCH: frenchProductName
+        },
         quantity: '500 g',
         brands: 'Seitenbacher',
         lang: OpenFoodFactsLanguage.FRENCH,
@@ -104,7 +117,9 @@ void main() {
       // save german product name
       Product germanProduct = Product(
         barcode: barcode,
-        productNameDE: 'Dinkelflakes',
+        productNameInLanguages: {
+          OpenFoodFactsLanguage.GERMAN: germanProductName
+        },
         quantity: '500 g',
         brands: 'Seitenbacher',
         lang: OpenFoodFactsLanguage.GERMAN,
@@ -116,7 +131,7 @@ void main() {
       expect(germanStatus.status, 1);
       expect(germanStatus.statusVerbose, 'fields saved');
 
-      // get french product
+      // get french fields for product
       ProductQueryConfiguration frenchConfig = ProductQueryConfiguration(
           barcode,
           language: OpenFoodFactsLanguage.FRENCH,
@@ -129,8 +144,9 @@ void main() {
           queryType: QueryType.TEST);
       assert(frenchResult.product != null);
       assert(frenchResult.product!.productName != null);
+      assert(frenchResult.product!.productName == frenchProductName);
 
-      // get german product
+      // get german fields for product
       ProductQueryConfiguration germanConfig = ProductQueryConfiguration(
           barcode,
           language: OpenFoodFactsLanguage.GERMAN,
@@ -144,6 +160,25 @@ void main() {
 
       assert(germanResult.product != null);
       assert(germanResult.product!.productName != null);
+      assert(germanResult.product!.productName == germanProductName);
+
+      // get preferably French, then German fields for product
+      ProductQueryConfiguration frenchGermanConfig =
+          ProductQueryConfiguration(barcode, languages: [
+        OpenFoodFactsLanguage.FRENCH,
+        OpenFoodFactsLanguage.GERMAN,
+      ], fields: [
+        ProductField.NAME,
+        ProductField.BRANDS,
+        ProductField.QUANTITY
+      ]);
+      var frenchGermanResult = await OpenFoodAPIClient.getProduct(
+          frenchGermanConfig,
+          queryType: QueryType.TEST);
+
+      assert(frenchGermanResult.product != null);
+      assert(frenchGermanResult.product!.productName != null);
+      assert(frenchGermanResult.product!.productName == frenchProductName);
     });
 
     test('add new product test 2', () async {
@@ -250,6 +285,69 @@ void main() {
           'Product categories test 1,Product categories test 2');
       expect(result.product!.categoriesTags,
           ['en:product-categories-test-1', 'en:product-categories-test-2']);
+    });
+
+    test('confirm that nutrient fields are saved', () async {
+      const QueryType QUERY_TYPE = QueryType.TEST;
+      const User USER = TestConstants.TEST_USER;
+      const double ENERGY = 365;
+      const double CARBOHYDRATES = 12;
+      const double PROTEINS = 6;
+      const double FAT = 0.1;
+      const String BARCODE = '7340011364184';
+      const String PRODUCT_NAME = 'Chili beans';
+      const String NUTRIMENT_DATA_PER = '100g';
+
+      for (int i = 1; i >= 0; i--) {
+        final Nutriments nutriments = Nutriments(
+          energy: ENERGY + i,
+          energyUnit: Unit.KJ,
+          carbohydrates: CARBOHYDRATES + i,
+          proteins: PROTEINS + i,
+          fat: FAT + i,
+        );
+
+        final Product newProduct = Product(
+          barcode: BARCODE,
+          productName: PRODUCT_NAME,
+          nutrimentDataPer: NUTRIMENT_DATA_PER,
+          nutriments: nutriments,
+        );
+
+        final Status status = await OpenFoodAPIClient.saveProduct(
+          USER,
+          newProduct,
+          queryType: QUERY_TYPE,
+        );
+
+        expect(status.status, 1);
+        expect(status.statusVerbose, 'fields saved');
+
+        final ProductResult result = await OpenFoodAPIClient.getProductRaw(
+          BARCODE,
+          OpenFoodFactsLanguage.ENGLISH,
+          user: USER,
+          queryType: QUERY_TYPE,
+        );
+
+        expect(result.status, 1);
+        expect(result.barcode, BARCODE);
+        final Product? searchedProduct = result.product;
+        expect(searchedProduct != null, true);
+        if (searchedProduct != null) {
+          expect(searchedProduct.barcode, BARCODE);
+          expect(searchedProduct.productName, PRODUCT_NAME);
+          expect(searchedProduct.nutrimentDataPer, NUTRIMENT_DATA_PER);
+          var searchedNutriments = searchedProduct.nutriments;
+          expect(searchedNutriments != null, true);
+          if (searchedNutriments != null) {
+            expect(searchedNutriments.energy, nutriments.energy);
+            expect(searchedNutriments.carbohydrates, nutriments.carbohydrates);
+            expect(searchedNutriments.proteins, nutriments.proteins);
+            expect(searchedNutriments.fat, nutriments.fat);
+          }
+        }
+      }
     });
   });
 }

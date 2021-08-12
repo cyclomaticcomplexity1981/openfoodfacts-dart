@@ -30,6 +30,8 @@ You can check the terms of use here : [Terms of use](https://world.openfoodfacts
 
 ### GENERAL
 - [x] Multilingual (180 languages are supported)
+- [x] Create users
+- [x] Check if users exist   
 
 ### READ
 - [x] Product: you can retrieve information about products
@@ -43,6 +45,7 @@ You can check the terms of use here : [Terms of use](https://world.openfoodfacts
 ### PERSONALIZATION
 - [x] Recommended Daily Intakes
 - [x] Translated, high-level and customizable product information (Attributes)
+- [x] Autocompleting for the user inputs, by giving suggestions for (Labels, categories, ingredients, additives, traces ...)
 
 ### SEARCH
 - [x] search products by tags
@@ -64,7 +67,7 @@ You can check the terms of use here : [Terms of use](https://world.openfoodfacts
 ### Other
 
 ## Roadmap
-
+List of new APIs to implement: https://github.com/openfoodfacts/api-documentation/issues
 
 ### READ
 - [ ] ???
@@ -90,6 +93,7 @@ dart test
 
 ## How to use ?
 You can find the full documentation here : [Documentation](https://github.com/openfoodfacts/openfoodfacts-dart/blob/master/DOCUMENTATION.md).
+You can find automated code documentation here:  [Documentation](https://openfoodfacts.github.io/openfoodfacts-dart/).
 
 ## Authors
 * Alexander Schacht - [Grumpf86](https://github.com/Grumpf86)
